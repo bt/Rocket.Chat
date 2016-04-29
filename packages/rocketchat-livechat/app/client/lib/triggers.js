@@ -5,7 +5,7 @@ this.Triggers = (function() {
 
 	var fire = function(actions) {
 		if (Meteor.userId()) {
-			console.log('already logged user - does nothing');
+			// console.log('already logged user - does nothing');
 			return;
 		}
 		actions.forEach(function(action) {
@@ -14,6 +14,8 @@ this.Triggers = (function() {
 
 				if (!roomId) {
 					roomId = Random.id();
+
+					// @TODO need to test with the new "less reactive" code
 					visitor.setRoom(roomId);
 				}
 
@@ -57,23 +59,25 @@ this.Triggers = (function() {
 		});
 	};
 
+	var setTriggers = function(newTriggers) {
+		triggers = newTriggers;
+	};
+
 	var init = function() {
 		initiated = true;
-		Tracker.autorun(function() {
-			triggers = Trigger.find().fetch();
 
-			if (requests.length > 0 && triggers.length > 0) {
-				requests.forEach(function(request) {
-					processRequest(request);
-				});
+		if (requests.length > 0 && triggers.length > 0) {
+			requests.forEach(function(request) {
+				processRequest(request);
+			});
 
-				requests = [];
-			}
-		});
+			requests = [];
+		}
 	};
 
 	return {
 		init: init,
-		processRequest: processRequest
+		processRequest: processRequest,
+		setTriggers: setTriggers
 	};
 }());
